@@ -1,0 +1,81 @@
+{
+    "name": "OCI-Object-Storage",
+    "type": "executer",
+    "execProgram": "node",
+    "main": "app.js",
+    "exposeRoute": true,
+    "imgUrl": "ociobjectstorage.png",
+    "version": "1.0.0",
+    "description": "Integration with Oracle Cloud Object Storage",
+    "settings": [
+        {
+            "name":"ROOT_COMPARTMENT",
+            "viewName": "Root Compartment ID",
+            "type": "vault"
+        },
+        {
+            "name":"PRIVATE_KEY",
+            "viewName":"Private key",
+            "type":"vault"
+        },
+        {
+            "name":"USER_ID",
+            "viewName":"User Id",
+            "type":"vault"
+        },
+        {
+            "name":"TENANCY_ID",
+            "viewName":"Tenancy Id",
+            "type":"vault"
+        },
+        {
+            "name":"FINGERPRINT",
+            "viewName":"Fingerprint",
+            "type":"vault"
+        },
+        {
+            "name":"REGION",
+            "viewName":"Region",
+            "type":"vault"
+        }
+    ],
+    "methods":[
+        {
+            "name":"CREATE_BUCKET",
+            "viewName":"Create bucket",
+            "params": [
+                {
+                    "name": "COMPARTMENT_ID",
+                    "viewName": "Compartment",
+                    "type": "string"
+                },
+                {
+                    "name": "BUCKET_NAME",
+                    "viewName": "Bucket name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name":"UPLOAD_TO_BUCKET",
+            "viewName":"Upload to bucket",
+            "params": [
+                {
+                    "name": "BUCKET_NAME",
+                    "viewName": "Bucket name*",
+                    "type": "string"
+                },
+                {
+                    "name": "FILE_LOCATION",
+                    "viewName": "File location*",
+                    "type": "string"
+                },
+                {
+                    "name": "OBJECT_NAME",
+                    "viewName": "Object name*",
+                    "type": "string"
+                }
+            ]
+        }
+    ]
+}
