@@ -1,91 +1,55 @@
-
-// JavaScript
-
-const os = require("oci-objectstorage");
-const common = require("oci-common");
 const fs = require("fs");
-const { listCompartments } = require('./autocomplete');
-const { createOci, createPem, createProvider } = require('./helpers');
+const { getOSClient } = require('./helpers');
+const parsers = require("./parsers");
 
-async function createBucket(action,settings) {
-  return new Promise(async(resolve,reject) => {
-    const privateKey = settings.PRIVATE_KEY;
-    const userId = settings.USER_ID;
-    const tenancyId = settings.TENANCY_ID;
-    const fingerPrint = settings.FINGERPRINT;
-    const region = settings.REGION;
-    const compartmentId = action.params.COMPARTMENT_ID.id ? action.params.COMPARTMENT_ID.id : action.params.COMPARTMENT_ID;
-    const bucketName = action.params.BUCKET_NAME;
-    await createOci(userId, tenancyId, fingerPrint, region);
-    await createPem(privateKey);
-    const provider = await createProvider();
-    const client = new os.ObjectStorageClient({
-      authenticationDetailsProvider: provider
-    });
-    const nsRequest = {};
-    const nsResponse = await client.getNamespace(nsRequest);
-    const namespace = nsResponse.value;
-    const bucketDetails = {
-      name: bucketName,
-      compartmentId: compartmentId
-    };
-    const createBucketRequest = {
-      namespaceName: namespace,
-      createBucketDetails: bucketDetails
+async function createBucket(action, settings) {
+  const client = getOSClient(settings);
+  const compartmentId = parsers.autocomplete(action.params.compartment || settings.tenancyId);
+  const namespace = await client.getNamespace({compartmentId});
+  return client.createBucket({
+    namespaceName: namespace.value,
+    createBucketDetails: {
+      compartmentId,
+      name: parsers.string(action.params.name)
     }
-    let createBucketResponse;
-    try {
-      createBucketResponse = await client.createBucket(createBucketRequest);
-    } catch (error) {
-      return reject(`exec error: ${error}`);
-    }
-    return resolve(createBucketResponse);
-    
   });
 }
 
 async function uploadToBucket(action,settings) {
-  return new Promise(async(resolve,reject) => {
-    const privateKey = settings.PRIVATE_KEY;
-    const userId = settings.USER_ID;
-    const tenancyId = settings.TENANCY_ID;
-    const fingerPrint = settings.FINGERPRINT;
-    const region = settings.REGION;
-    const bucketName = action.params.BUCKET_NAME;
-    const fileLocation = action.params.FILE_LOCATION;
-    const objectName = action.params.OBJECT_NAME;
-    await createOci(userId, tenancyId, fingerPrint, region);
-    await createPem(privateKey);
-    const provider = await createProvider();
-    const client = new os.ObjectStorageClient({
-      authenticationDetailsProvider: provider
-    });
-    const stats = fs.statSync(fileLocation);
-    const nodeFsBlob = new os.NodeFSBlob(fileLocation, stats.size);
-    const objectData = await nodeFsBlob.getData();
-    const nsRequest = {};
-    const nsResponse = await client.getNamespace(nsRequest);
-    const namespace = nsResponse.value;
-    const putObjectRequest = {
-      namespaceName: namespace,
-      bucketName: bucketName,
-      putObjectBody: objectData,
-      objectName: objectName,
-      contentLength: stats.size
-    };
-    let putObjectResponse;
-    try {
-      putObjectResponse = await client.putObject(putObjectRequest);
-    } catch (error) {
-      return reject(`exec error: ${error}`);
-    }
-    return resolve(putObjectResponse);
+  const client = getOSClient(settings);
+  const filePath = parsers.string(action.params.filePath);
+  const namespace = await client.getNamespace({
+    compartmentId: parsers.autocomplete(action.params.compartment || settings.tenancyId)
+  });
+  return client.putObject({
+    bucketName: parsers.autocomplete(action.params.bucket),
+    namespaceName: namespace.value,
+    objectName: parsers.string(action.params.objectName),
+    contentLength: fs.statSync(filePath).size,
+    putObjectBody: fs.createReadStream(filePath)
   });
 }
+
+async function downloadFromBucket(action,settings) {
+  const client = getOSClient(settings);
+  const filePath = parsers.string(action.params.filePath);
+  const namespace = await client.getNamespace({
+    compartmentId: parsers.autocomplete(action.params.compartment|| settings.tenancyId)
+  });
+  const result = await client.getObject({
+    bucketName: parsers.autocomplete(action.params.bucket),
+    namespaceName: namespace.value,
+    objectName: parsers.autocomplete(action.params.object)
+  });
+  const writable = fs.createWriteStream(filePath);
+  result.value.pipe(writable);
+  return result;
+}
+
 module.exports = {
-  CREATE_BUCKET:createBucket,
-  UPLOAD_TO_BUCKET:uploadToBucket,
-  //autocomplete
-  listCompartments
+  createBucket,
+  uploadToBucket,
+  downloadFromBucket,
+  ...require("./autocomplete")
 }
 
