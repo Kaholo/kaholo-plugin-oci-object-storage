@@ -37,7 +37,9 @@ async function listCompartments(query, pluginSettings) {
     authenticationDetailsProvider: provider
   });
   const result = await identityClient.listCompartments({ compartmentId: tenancyId });
-  return handleResult(result, query);
+  const compartments = handleResult(result, query);
+  compartments.push({id: tenancyId, value: "Tenancy"});
+  return compartments;
 }
 
 async function listBuckets(query, pluginSettings, pluginActionParams) {
