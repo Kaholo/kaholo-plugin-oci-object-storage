@@ -1,0 +1,119 @@
+{
+    "name": "OCI-Object-Storage",
+    "type": "executer",
+    "execProgram": "node",
+    "main": "app.js",
+    "exposeRoute": true,
+    "imgUrl": "logo.png",
+    "version": "2.0.0",
+    "description": "Integration with Oracle Cloud Object Storage",
+    "settings": [
+        {
+            "name":"privateKey",
+            "viewName":"Private key",
+            "type":"vault"
+        },
+        {
+            "name":"userId",
+            "viewName":"User Id",
+            "type":"string"
+        },
+        {
+            "name":"tenancyId",
+            "viewName":"Tenancy Id",
+            "type":"string"
+        },
+        {
+            "name":"fingerprint",
+            "viewName":"Fingerprint",
+            "type":"vault"
+        },
+        {
+            "name":"region",
+            "viewName":"Region",
+            "type":"string"
+        }
+    ],
+    "methods":[
+        {
+            "name":"createBucket",
+            "viewName":"Create bucket",
+            "params": [
+                {
+                    "name": "compartment",
+                    "viewName": "Compartment",
+                    "type": "autocomplete",
+                    "autocompleteType":"function",
+                    "functionName":"listCompartments"
+                },
+                {
+                    "name": "name",
+                    "viewName": "Bucket Name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name":"uploadToBucket",
+            "viewName":"Upload To Bucket",
+            "params": [
+                {
+                    "name": "compartment",
+                    "viewName": "Compartment",
+                    "type": "autocomplete",
+                    "autocompleteType":"function",
+                    "functionName":"listCompartments"
+                },
+                {
+                    "name": "bucket",
+                    "viewName": "Bucket",
+                    "type": "autocomplete",
+                    "autocompleteType":"function",
+                    "functionName":"listBuckets"
+                },
+                {
+                    "name": "filePath",
+                    "viewName": "File Path",
+                    "type": "string"
+                },
+                {
+                    "name": "objectName",
+                    "viewName": "Object Name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name":"downloadFromBucket",
+            "viewName":"Download From Bucket",
+            "params": [
+                {
+                    "name": "compartment",
+                    "viewName": "Compartment",
+                    "type": "autocomplete",
+                    "autocompleteType":"function",
+                    "functionName":"listCompartments"
+                },
+                {
+                    "name": "bucket",
+                    "viewName": "Bucket",
+                    "type": "autocomplete",
+                    "autocompleteType":"function",
+                    "functionName":"listBuckets"
+                },
+                {
+                    "name": "object",
+                    "viewName": "Object Name",
+                    "type": "autocomplete",
+                    "autocompleteType":"function",
+                    "functionName":"listObjects"
+                },
+                {
+                    "name": "filePath",
+                    "viewName": "Download Path",
+                    "type": "string"
+                }
+            ]
+        }
+    ]
+}

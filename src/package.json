@@ -1,0 +1,16 @@
+{
+  "name": "kaholo-plugin-oci-object-storage",
+  "version": "1.0.0",
+  "description": "Kaholo plugin for Oracle Cloud Infrastructure(OCI) Object Storage",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kaholo Team",
+  "license": "ISC",
+  "dependencies": {
+    "oci-identity": "^1.21.0",
+    "oci-common": "^1.21.0",
+    "oci-objectstorage": "^1.21.0"
+  }
+}
