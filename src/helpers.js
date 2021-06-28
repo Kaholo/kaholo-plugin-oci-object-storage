@@ -4,11 +4,11 @@ const OS = require("oci-objectstorage")
 /***
  * @returns {common.SimpleAuthenticationDetailsProvider} OCI Auth Details Provider
  ***/
-function getProvider(settings){
+ function getProvider(settings){
     return new common.SimpleAuthenticationDetailsProvider(
         settings.tenancyId,     settings.userId,
         settings.fingerprint,   settings.privateKey,
-        null,                   settings.region
+        null,                   common.Region.fromRegionId(settings.region)
     );
 }
 
